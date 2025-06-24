@@ -4,6 +4,10 @@ resource "random_password" "password" {
   override_special = "!#$%&*()-_=+[]{}<>:?"
 }
 
+data "aws_ssm_parameter" "redshift_master_username" {
+  name            = "/redshift/master_username"
+  with_decryption = true
+}
 
 resource "aws_ssm_parameter" "redshift_pswrd" {
   name        = "/dev/redshift-cluster/password/master"
@@ -15,13 +19,13 @@ resource "aws_ssm_parameter" "redshift_pswrd" {
 }
 
 resource "aws_redshift_cluster" "new_cluster" {
-  cluster_identifier = "tf-redshift-cluster"
-  database_name      = "dev_db"
-  master_username    = "exampleuser"
+  cluster_identifier = var.cluster_config.cluster_identifier
+  database_name      = var.cluster_config.database_name
+  master_username    = data.aws_ssm_parameter.redshift_master_username.value
   master_password    = aws_ssm_parameter.redshift_pswrd.value
-  node_type          = "dc2.large"
-  cluster_type       = "multi-node"
-  number_of_nodes    = 3
+  node_type          = var.cluster_config.node_type
+  cluster_type       = var.cluster_config.cluster_type
+  number_of_nodes    = var.cluster_config.number_of_nodes
 
   tags = local.common_tags
 }
