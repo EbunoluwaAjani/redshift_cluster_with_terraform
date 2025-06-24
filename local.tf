@@ -1,7 +1,7 @@
 locals {
   common_tags = {
     ManagedBy   = "Terraform"
-    Project     = "Mentorship by Mayor"
+    Project     = "redshift-cluster-provisioning"
     environment = "development"
   }
 }
